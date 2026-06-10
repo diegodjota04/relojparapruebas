@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reloj para Pruebas - Colegio Calasanz</title>
+  <!-- Google Fonts: Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  
+  <style>
+    /* ==========================================================================
+       DESIGN SYSTEM & CSS VARIABLES
+       ========================================================================== */
+    :root {
+      /* Theme variables - Dark Theme (Default) */
+      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      --glass-bg: rgba(30, 41, 59, 0.6);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      
+      /* Accent colors */
+      --color-primary: #6366f1; /* Indigo */
+      --color-primary-glow: rgba(99, 102, 241, 0.3);
+      --color-accent: #06b6d4; /* Cyan */
+      --color-accent-glow: rgba(6, 182, 212, 0.3);
+      
+      /* State colors */
+      --color-success: #10b981; /* Emerald */
+      --color-success-glow: rgba(16, 185, 129, 0.2);
+      --color-warning: #f59e0b; /* Amber */
+      --color-warning-glow: rgba(245, 158, 11, 0.2);
+      --color-danger: #ef4444; /* Rose/Red */
+      --color-danger-glow: rgba(239, 68, 68, 0.2);
+      --color-card-bg: rgba(15, 23, 42, 0.4);
+
+      /* Typography */
+      --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'Share Tech Mono', monospace;
+
+      /* Transitions */
+      --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-normal: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Light Theme override */
+    [data-theme="light"] {
+      --bg-gradient: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+      --glass-bg: rgba(255, 255, 255, 0.7);
+      --glass-border: rgba(15, 23, 42, 0.08);
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      
+      --color-primary: #4f46e5;
+      --color-primary-glow: rgba(79, 70, 229, 0.2);
+      --color-accent: #0891b2;
+      --color-accent-glow: rgba(8, 145, 178, 0.2);
+      
+      --color-card-bg: rgba(248, 250, 252, 0.6);
+      --glass-border: rgba(0, 0, 0, 0.08);
+    }
+
+    /* ==========================================================================
+       BASE STYLES
+       ========================================================================== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      transition: background var(--transition-normal), color var(--transition-normal);
+      overflow-x: hidden;
+    }
+
+    /* Background decorative blobs */
+    .bg-blob {
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      filter: blur(120px);
+      z-index: -1;
+      opacity: 0.15;
+      pointer-events: none;
+      transition: opacity var(--transition-normal);
+    }
+    
+    [data-theme="light"] .bg-blob {
+      opacity: 0.08;
+    }
+
+    .blob-1 {
+      top: -10%;
+      left: -10%;
+      background: var(--color-primary);
+    }
+
+    .blob-2 {
+      bottom: -10%;
+      right: -10%;
+      background: var(--color-accent);
+    }
+
+    /* ==========================================================================
+       LAYOUT CONTAINER (GLASS CONTAINER)
+       ========================================================================== */
+    .app-container {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 24px;
+      width: 100%;
+      max-width: 960px;
+      padding: 40px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      position: relative;
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Theme Toggle & Audio Settings Bar */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: -10px;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .logo-img {
+      height: 60px;
+      width: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.2));
+    }
+    
+    [data-theme="light"] .logo-img {
+      /* Logo might look better with custom filter in light mode if it has white text,
+         but usually it's standard colored logo. */
+    }
+
+    .app-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      background: linear-gradient(90deg, var(--text-main) 0%, var(--text-muted) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .settings-controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .icon-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      color: var(--text-main);
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition-fast);
+      position: relative;
+    }
+
+    .icon-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+      border-color: var(--color-primary);
+      box-shadow: 0 0 10px var(--color-primary-glow);
+    }
+
+    .icon-btn:active {
+      transform: translateY(0);
+    }
+
+    /* Sound notification tooltip */
+    .icon-btn[data-tooltip]::before {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: -35px;
+      left: 50%;
+      transform: translateX(-50%) translateY(5px);
+      background: #0f172a;
+      color: #fff;
+      padding: 4px 8px;
+      font-size: 0.75rem;
+      border-radius: 6px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: all var(--transition-fast);
+      border: 1px solid rgba(255,255,255,0.1);
+      z-index: 10;
+    }
+
+    .icon-btn[data-tooltip]:hover::before {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ==========================================================================
+       DIGITAL CLOCK DISPLAY
+       ========================================================================== */
+    .clock-card {
+      background: var(--color-card-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 24px 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.03);
+    }
+
+    .clock-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .clock-time {
+      font-family: var(--font-mono);
+      font-size: 4.5rem;
+      font-weight: 400;
+      color: var(--color-accent);
+      text-shadow: 0 0 20px var(--color-accent-glow);
+      display: flex;
+      align-items: baseline;
+      line-height: 1;
+      letter-spacing: 0.02em;
+    }
+
+    .clock-seconds {
+      font-size: 2.5rem;
+      color: var(--text-muted);
+      margin-left: 5px;
+      text-shadow: none;
+      opacity: 0.85;
+      width: 50px;
+    }
+
+    .clock-period {
+      font-family: var(--font-sans);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-left: 10px;
+      text-transform: uppercase;
+    }
+
+    /* Pulse effect on separators */
+    .clock-separator {
+      animation: pulse 1s infinite;
+      width: 20px;
+      text-align: center;
+      display: inline-block;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: 1; }
+    }
+
+    /* ==========================================================================
+       SETUP CONFIGURATION CARD
+       ========================================================================== */
+    .setup-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .setup-grid {
+        grid-template-columns: 1fr;
+      }
+      .app-container {
+        padding: 24px;
+      }
+      .clock-time {
+        font-size: 3.2rem;
+      }
+      .clock-seconds {
+        font-size: 1.8rem;
+        width: 38px;
+      }
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .control-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+
+    /* Styled Select Dropdown */
+    .select-wrapper {
+      position: relative;
+      width: 100%;
+    }
+
+    .custom-select {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.4);
+      border: 1px solid var(--glass-border);
+      color: var(--text-main);
+      padding: 16px 20px;
+      font-size: 1.1rem;
+      font-weight: 500;
+      border-radius: 14px;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      transition: all var(--transition-fast);
+      font-family: var(--font-sans);
+    }
+    
+    [data-theme="light"] .custom-select {
+      background: rgba(255, 255, 255, 0.8);
+    }
+
+    .custom-select:focus, .custom-select:hover {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 12px var(--color-primary-glow);
+    }
+
+    .select-wrapper::after {
+      content: '';
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 10px;
+      height: 6px;
+      background-color: var(--text-muted);
+      clip-path: polygon(100% 0, 0 0, 50% 100%);
+      pointer-events: none;
+      transition: background-color var(--transition-fast);
+    }
+
+    .select-wrapper:hover::after {
+      background-color: var(--text-main);
+    }
+
+    /* Styled Segmented Radio Buttons */
+    .segmented-control {
+      display: flex;
+      background: rgba(15, 23, 42, 0.4);
+      border: 1px solid var(--glass-border);
+      border-radius: 14px;
+      padding: 5px;
+      position: relative;
+      overflow: hidden;
+      height: 58px;
+    }
+
+    [data-theme="light"] .segmented-control {
+      background: rgba(255, 255, 255, 0.8);
+    }
+
+    .segment-option {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      z-index: 2;
+      cursor: pointer;
+    }
+
+    .segment-option input {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .segment-label {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      transition: color var(--transition-fast);
+    }
+
+    /* Sliding background pill */
+    .segmented-control .slider {
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      width: calc(50% - 5px);
+      height: calc(100% - 10px);
+      background: var(--color-primary);
+      border-radius: 10px;
+      box-shadow: 0 4px 12px var(--color-primary-glow);
+      z-index: 1;
+      transition: transform var(--transition-normal) cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* Toggle slider position */
+    #prueba2:checked ~ .slider {
+      transform: translateX(100%);
+      background: var(--color-primary);
+    }
+
+    .segment-option input:checked + .segment-label {
+      color: #ffffff !important;
+    }
+
+    /* ==========================================================================
+       ACTION BUTTONS
+       ========================================================================== */
+    .actions-bar {
+      display: flex;
+      gap: 15px;
+    }
+
+    .btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 16px 24px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      font-family: var(--font-sans);
+      border-radius: 14px;
+      border: none;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn-start {
+      background: linear-gradient(135deg, var(--color-primary) 0%, #4f46e5 100%);
+      color: #ffffff;
+    }
+
+    .btn-start:hover:not(:disabled) {
+      box-shadow: 0 0 20px var(--color-primary-glow);
+      transform: translateY(-2px);
+    }
+
+    .btn-start:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      filter: grayscale(1);
+    }
+
+    .btn-reset {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: #f59e0b;
+    }
+
+    .btn-reset:hover {
+      background: rgba(245, 158, 11, 0.2);
+      transform: translateY(-2px);
+      box-shadow: 0 0 15px var(--color-warning-glow);
+    }
+
+    .btn-exit {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #ef4444;
+    }
+
+    .btn-exit:hover {
+      background: rgba(239, 68, 68, 0.2);
+      transform: translateY(-2px);
+      box-shadow: 0 0 15px var(--color-danger-glow);
+    }
+
+    /* ==========================================================================
+       RESULTS GRID (TIME CARDS)
+       ========================================================================== */
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .results-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--color-card-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      transition: all var(--transition-normal);
+      opacity: 0.6; /* Dimmed when not active */
+    }
+
+    .card.active {
+      opacity: 1;
+      border-color: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    [data-theme="light"] .card.active {
+      border-color: rgba(0, 0, 0, 0.12);
+    }
+
+    .card-header-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .card-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+    }
+
+    .card-value {
+      font-family: var(--font-mono);
+      font-size: 2.2rem;
+      font-weight: 400;
+      color: var(--text-main);
+      line-height: 1;
+    }
+
+    .card.active .card-value-start {
+      color: var(--color-accent);
+      text-shadow: 0 0 15px var(--color-accent-glow);
+    }
+
+    .card.active .card-value-regular {
+      color: var(--color-warning);
+      text-shadow: 0 0 15px var(--color-warning-glow);
+    }
+
+    .card.active .card-value-apoyo {
+      color: var(--color-danger);
+      text-shadow: 0 0 15px var(--color-danger-glow);
+    }
+
+    /* Countdown segment inside cards */
+    .countdown-section {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 12px;
+      margin-top: 5px;
+    }
+    
+    [data-theme="light"] .countdown-section {
+      border-top-color: rgba(0, 0, 0, 0.05);
+    }
+
+    .countdown-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+
+    .countdown-timer {
+      font-family: var(--font-mono);
+      font-size: 1.4rem;
+      font-weight: 400;
+      color: var(--text-main);
+    }
+
+    /* Dynamic progress bars */
+    .progress-bar-container {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    [data-theme="light"] .progress-bar-container {
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      border-radius: 4px;
+      transition: width 1s linear, background-color var(--transition-normal);
+    }
+
+    .progress-regular {
+      background: linear-gradient(90deg, #d97706, var(--color-warning));
+      box-shadow: 0 0 8px var(--color-warning-glow);
+    }
+
+    .progress-apoyo {
+      background: linear-gradient(90deg, #dc2626, var(--color-danger));
+      box-shadow: 0 0 8px var(--color-danger-glow);
+    }
+    
+    .progress-bar.finished {
+      background: var(--color-success) !important;
+      box-shadow: 0 0 8px var(--color-success-glow);
+      animation: pulse-green 1.5s infinite;
+    }
+
+    @keyframes pulse-green {
+      0%, 100% { opacity: 0.8; }
+      50% { opacity: 1; }
+    }
+
+    /* ==========================================================================
+       CUSTOM DIALOG / MODAL WINDOW
+       ========================================================================== */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--transition-fast);
+    }
+
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-box {
+      background: #1e293b;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 450px;
+      width: 90%;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      transform: scale(0.9) translateY(10px);
+      transition: transform var(--transition-normal) cubic-bezier(0.34, 1.56, 0.64, 1);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      color: #f8fafc;
+    }
+
+    [data-theme="light"] .modal-box {
+      background: #ffffff;
+      border-color: rgba(0, 0, 0, 0.1);
+      color: #0f172a;
+    }
+
+    .modal-overlay.open .modal-box {
+      transform: scale(1) translateY(0);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .modal-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+    }
+
+    .modal-icon.warning {
+      background: rgba(245, 158, 11, 0.15);
+      color: #f59e0b;
+    }
+
+    .modal-icon.danger {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+    }
+
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .modal-message {
+      font-size: 1rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    
+    [data-theme="light"] .modal-message {
+      color: #475569;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      margin-top: 10px;
+    }
+
+    .modal-btn {
+      padding: 12px 20px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .modal-btn-cancel {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      color: var(--text-main);
+    }
+
+    .modal-btn-cancel:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .modal-btn-confirm {
+      background: var(--color-primary);
+      color: #ffffff;
+    }
+
+    .modal-btn-confirm:hover {
+      box-shadow: 0 0 12px var(--color-primary-glow);
+      filter: brightness(1.1);
+    }
+    
+    .modal-btn-danger {
+      background: #ef4444;
+      color: #ffffff;
+    }
+
+    .modal-btn-danger:hover {
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+      filter: brightness(1.1);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background blobs -->
+  <div class="bg-blob blob-1"></div>
+  <div class="bg-blob blob-2"></div>
+
+  <!-- MAIN APP CONTAINER -->
+  <main class="app-container">
+    
+    <!-- Top Branding and Settings Row -->
+    <header class="top-bar">
+      <div class="logo-container">
+        <!-- BASE64 INLINED LOGO -->
+        <img class="logo-img" src="data:image/png;base64,{{LOGO_BASE64}}" alt="Logo Calasanz">
+        <h1 class="app-title">Reloj para Pruebas</h1>
+      </div>
+      <div class="settings-controls">
+        <!-- Sound alert toggle -->
+        <button id="soundToggle" class="icon-btn" data-tooltip="Notificación Sonora: Activa">
+          <!-- Bell Icon -->
+          <svg id="soundOnIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          <svg id="soundOffIcon" style="display:none;" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.73 21a2 2 0 0 1-3.46 0"></path><path d="M18.63 13A17.89 17.89 0 0 1 18 8"></path><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"></path><path d="M18 8a6 6 0 0 0-9.33-5"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+        </button>
+        <!-- Theme switcher -->
+        <button id="themeToggle" class="icon-btn" data-tooltip="Cambiar Tema">
+          <!-- Sun/Moon Icon -->
+          <svg id="sunIcon" style="display:none;" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+          <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- REAL-TIME DIGITAL CLOCK -->
+    <section class="clock-card" aria-label="Reloj Digital Actual">
+      <span class="clock-label">Hora Actual</span>
+      <div id="liveClock" class="clock-time">
+        <span id="clockHours">12</span>
+        <span class="clock-separator">:</span>
+        <span id="clockMinutes">00</span>
+        <span class="clock-separator">:</span>
+        <span id="clockSeconds" class="clock-seconds">00</span>
+        <span id="clockPeriod" class="clock-period">AM</span>
+      </div>
+    </section>
+
+    <!-- CONFIGURATION SETUP FOR EXAM -->
+    <section class="setup-grid" aria-label="Configuración de la Prueba">
+      <!-- Subject dropdown selector -->
+      <div class="control-group">
+        <label for="subjectSelect" class="control-label">Asignatura</label>
+        <div class="select-wrapper">
+          <select id="subjectSelect" class="custom-select">
+            <option value="" disabled selected>Seleccione una asignatura...</option>
+            <option value="Biología">Biología</option>
+            <option value="Ciencias">Ciencias</option>
+            <option value="Cívica">Cívica</option>
+            <option value="English">English</option>
+            <option value="Español">Español</option>
+            <option value="Estudios Sociales">Estudios Sociales</option>
+            <option value="Filosofía">Filosofía</option>
+            <option value="Física">Física</option>
+            <option value="Français">Français</option>
+            <option value="Matemáticas">Matemáticas</option>
+            <option value="Química">Química</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Segmented choice control for Exam Type -->
+      <div class="control-group">
+        <span class="control-label">Tipo de Prueba</span>
+        <div class="segmented-control">
+          <label class="segment-option" for="prueba1">
+            <input type="radio" id="prueba1" name="examType" value="1" checked>
+            <span class="segment-label">Prueba #1</span>
+          </label>
+          <label class="segment-option" for="prueba2">
+            <input type="radio" id="prueba2" name="examType" value="2">
+            <span class="segment-label">Prueba #2</span>
+          </label>
+          <div class="slider"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTROL INTERACTIVE BUTTONS -->
+    <section class="actions-bar" aria-label="Acciones de control">
+      <button id="btnStart" class="btn btn-start">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        Iniciar prueba
+      </button>
+      <button id="btnReset" class="btn btn-reset">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+        Reiniciar
+      </button>
+      <button id="btnExit" class="btn btn-exit">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        Finalizar
+      </button>
+    </section>
+
+    <!-- CALCULATION RESULTS GRID -->
+    <section class="results-grid" aria-label="Resultados de Tiempos">
+      <!-- Card: Start Time -->
+      <article id="cardStart" class="card">
+        <div class="card-header-group">
+          <span class="card-title">Hora de Inicio</span>
+          <span id="timeStart" class="card-value card-value-start">--:--</span>
+        </div>
+        <div class="countdown-section">
+          <span class="countdown-label">Estado</span>
+          <span id="stateText" class="countdown-timer" style="font-size: 1.15rem; font-family: var(--font-sans); font-weight: 600; color: var(--text-muted);">En espera</span>
+        </div>
+      </article>
+
+      <!-- Card: Regular Students -->
+      <article id="cardRegular" class="card">
+        <div class="card-header-group">
+          <span class="card-title">Finalización (Regular)</span>
+          <span id="timeRegular" class="card-value card-value-regular">--:--</span>
+        </div>
+        <div class="countdown-section">
+          <span class="countdown-label">Tiempo Restante</span>
+          <span id="timerRegular" class="countdown-timer">--:--:--</span>
+          <div class="progress-bar-container">
+            <div id="progressRegular" class="progress-bar progress-regular"></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card: Support Students -->
+      <article id="cardApoyo" class="card">
+        <div class="card-header-group">
+          <span class="card-title">Finalización (Apoyo)</span>
+          <span id="timeApoyo" class="card-value card-value-apoyo">--:--</span>
+        </div>
+        <div class="countdown-section">
+          <span class="countdown-label">Tiempo Restante</span>
+          <span id="timerApoyo" class="countdown-timer">--:--:--</span>
+          <div class="progress-bar-container">
+            <div id="progressApoyo" class="progress-bar progress-apoyo"></div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+  </main>
+
+  <!-- ==========================================================================
+       MODAL WINDOWS FOR DIALOGS
+       ========================================================================== */ -->
+  <!-- Warning Modal (Alert) -->
+  <div id="alertModal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-icon warning">⚠️</div>
+        <h3 id="alertTitle" class="modal-title">Atención</h3>
+      </div>
+      <p id="alertMessage" class="modal-message">Debe seleccionar una asignatura.</p>
+      <div class="modal-actions">
+        <button id="alertBtnOk" class="modal-btn modal-btn-confirm">Aceptar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal (Confirm) -->
+  <div id="confirmModal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div id="confirmIcon" class="modal-icon warning">❓</div>
+        <h3 id="confirmTitle" class="modal-title">Confirmación</h3>
+      </div>
+      <p id="confirmMessage" class="modal-message">¿Desea reiniciar el reloj?</p>
+      <div class="modal-actions">
+        <button id="confirmBtnCancel" class="modal-btn modal-btn-cancel">No</button>
+        <button id="confirmBtnOk" class="modal-btn modal-btn-confirm">Sí</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       JAVASCRIPT LOGIC
+       ========================================================================== */ -->
+  <script>
+    // Constants for time additions (in minutes)
+    const TIME_RULES = {
+      prueba1: {
+        regular: 80,  // 1 hour 20 minutes
+        apoyo: 110   // 1 hour 50 minutes
+      },
+      prueba2: {
+        regular: 120, // 2 hours
+        apoyo: 160   // 2 hours 40 minutes
+      }
+    };
+
+    // App State Object
+    const state = {
+      isTestActive: false,
+      startTime: null,
+      endTimeRegular: null,
+      endTimeApoyo: null,
+      timerInterval: null,
+      soundNotificationActive: true,
+      audioContext: null,
+      alarmsTriggered: {
+        regular: false,
+        apoyo: false
+      }
+    };
+
+    // DOM Elements
+    const elements = {
+      clockHours: document.getElementById('clockHours'),
+      clockMinutes: document.getElementById('clockMinutes'),
+      clockSeconds: document.getElementById('clockSeconds'),
+      clockPeriod: document.getElementById('clockPeriod'),
+      
+      subjectSelect: document.getElementById('subjectSelect'),
+      prueba1Radio: document.getElementById('prueba1'),
+      prueba2Radio: document.getElementById('prueba2'),
+      
+      btnStart: document.getElementById('btnStart'),
+      btnReset: document.getElementById('btnReset'),
+      btnExit: document.getElementById('btnExit'),
+      
+      cardStart: document.getElementById('cardStart'),
+      cardRegular: document.getElementById('cardRegular'),
+      cardApoyo: document.getElementById('cardApoyo'),
+      
+      timeStart: document.getElementById('timeStart'),
+      timeRegular: document.getElementById('timeRegular'),
+      timeApoyo: document.getElementById('timeApoyo'),
+      
+      stateText: document.getElementById('stateText'),
+      timerRegular: document.getElementById('timerRegular'),
+      timerApoyo: document.getElementById('timerApoyo'),
+      
+      progressRegular: document.getElementById('progressRegular'),
+      progressApoyo: document.getElementById('progressApoyo'),
+      
+      themeToggle: document.getElementById('themeToggle'),
+      sunIcon: document.getElementById('sunIcon'),
+      moonIcon: document.getElementById('moonIcon'),
+      
+      soundToggle: document.getElementById('soundToggle'),
+      soundOnIcon: document.getElementById('soundOnIcon'),
+      soundOffIcon: document.getElementById('soundOffIcon'),
+      
+      // Modals
+      alertModal: document.getElementById('alertModal'),
+      alertTitle: document.getElementById('alertTitle'),
+      alertMessage: document.getElementById('alertMessage'),
+      alertBtnOk: document.getElementById('alertBtnOk'),
+      
+      confirmModal: document.getElementById('confirmModal'),
+      confirmIcon: document.getElementById('confirmIcon'),
+      confirmTitle: document.getElementById('confirmTitle'),
+      confirmMessage: document.getElementById('confirmMessage'),
+      confirmBtnCancel: document.getElementById('confirmBtnCancel'),
+      confirmBtnOk: document.getElementById('confirmBtnOk')
+    };
+
+    // Callback store for Custom Modals
+    let activeConfirmCallback = null;
+
+    /* ==========================================================================
+       TIME FORMATTING & UTILITIES
+       ========================================================================== */
+    function formatTwoDigits(n) {
+      return n < 10 ? '0' + n : n;
+    }
+
+    function formatTime12h(date) {
+      if (!date) return '--:--';
+      let hours = date.getHours();
+      const minutes = formatTwoDigits(date.getMinutes());
+      const period = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? hours : 12; // the hour '0' should be '12'
+      return `${formatTwoDigits(hours)}:${minutes} ${period}`;
+    }
+
+    function getExamType() {
+      return elements.prueba1Radio.checked ? 'prueba1' : 'prueba2';
+    }
+
+    /* ==========================================================================
+       REAL-TIME CLOCK LOGIC
+       ========================================================================== */
+    function updateClock() {
+      const now = new Date();
+      let hours = now.getHours();
+      const minutes = formatTwoDigits(now.getMinutes());
+      const seconds = formatTwoDigits(now.getSeconds());
+      const period = hours >= 12 ? 'PM' : 'AM';
+      
+      hours = hours % 12;
+      hours = hours ? hours : 12; // the hour '0' should be '12'
+      
+      elements.clockHours.textContent = formatTwoDigits(hours);
+      elements.clockMinutes.textContent = minutes;
+      elements.clockSeconds.textContent = seconds;
+      elements.clockPeriod.textContent = period;
+    }
+
+    setInterval(updateClock, 1000);
+    updateClock(); // Initial call
+
+    /* ==========================================================================
+       THEMING (DARK/LIGHT MODE)
+       ========================================================================== */
+    // Initialize Theme
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeIcons(savedTheme);
+
+    elements.themeToggle.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateThemeIcons(newTheme);
+    });
+
+    function updateThemeIcons(theme) {
+      if (theme === 'light') {
+        elements.sunIcon.style.display = 'none';
+        elements.moonIcon.style.display = 'block';
+        elements.themeToggle.setAttribute('data-tooltip', 'Cambiar a Tema Oscuro');
+      } else {
+        elements.sunIcon.style.display = 'block';
+        elements.moonIcon.style.display = 'none';
+        elements.themeToggle.setAttribute('data-tooltip', 'Cambiar a Tema Claro');
+      }
+    }
+
+    /* ==========================================================================
+       SOUND/AUDIO NOTIFICATION LOGIC
+       ========================================================================== */
+    elements.soundToggle.addEventListener('click', () => {
+      state.soundNotificationActive = !state.soundNotificationActive;
+      if (state.soundNotificationActive) {
+        elements.soundOnIcon.style.display = 'block';
+        elements.soundOffIcon.style.display = 'none';
+        elements.soundToggle.setAttribute('data-tooltip', 'Notificación Sonora: Activa');
+      } else {
+        elements.soundOnIcon.style.display = 'none';
+        elements.soundOffIcon.style.display = 'block';
+        elements.soundToggle.setAttribute('data-tooltip', 'Notificación Sonora: Silenciada');
+      }
+    });
+
+    // Synthesize a pleasant notification bell sound
+    function playChime() {
+      if (!state.soundNotificationActive) return;
+      
+      try {
+        // Initialize AudioContext lazily on user interaction
+        if (!state.audioContext) {
+          state.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        
+        const ctx = state.audioContext;
+        if (ctx.state === 'suspended') {
+          ctx.resume();
+        }
+
+        const now = ctx.currentTime;
+        
+        // Custom synthesizer for a crystal clear chime sound (harmonic resonance)
+        // We will create a primary oscillator and two minor harmonics
+        const frequencies = [880, 1109.73, 1320]; // A5 major chord notes
+        
+        frequencies.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gainNode = ctx.createGain();
+          
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now);
+          
+          // Smooth exponential decay curve
+          gainNode.gain.setValueAtTime(idx === 0 ? 0.3 : 0.1, now);
+          gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 2.5);
+          
+          osc.connect(gainNode);
+          gainNode.connect(ctx.destination);
+          
+          osc.start(now);
+          osc.stop(now + 2.6);
+        });
+      } catch (err) {
+        console.error("Audio Context could not play chime sound:", err);
+      }
+    }
+
+    /* ==========================================================================
+       MODAL DIALOG HELPERS
+       ========================================================================== */
+    function showAlert(message, title = "Atención") {
+      elements.alertTitle.textContent = title;
+      elements.alertMessage.textContent = message;
+      elements.alertModal.classList.add('open');
+    }
+
+    elements.alertBtnOk.addEventListener('click', () => {
+      elements.alertModal.classList.remove('open');
+    });
+
+    function showConfirm(message, onConfirm, title = "Confirmación", isDanger = false) {
+      elements.confirmTitle.textContent = title;
+      elements.confirmMessage.textContent = message;
+      activeConfirmCallback = onConfirm;
+      
+      // Style confirm icon based on alert severity
+      if (isDanger) {
+        elements.confirmIcon.className = "modal-icon danger";
+        elements.confirmIcon.textContent = "🗑️";
+        elements.confirmBtnOk.className = "modal-btn modal-btn-danger";
+      } else {
+        elements.confirmIcon.className = "modal-icon warning";
+        elements.confirmIcon.textContent = "❓";
+        elements.confirmBtnOk.className = "modal-btn modal-btn-confirm";
+      }
+      
+      elements.confirmModal.classList.add('open');
+    }
+
+    elements.confirmBtnCancel.addEventListener('click', () => {
+      elements.confirmModal.classList.remove('open');
+      activeConfirmCallback = null;
+    });
+
+    elements.confirmBtnOk.addEventListener('click', () => {
+      elements.confirmModal.classList.remove('open');
+      if (typeof activeConfirmCallback === 'function') {
+        activeConfirmCallback();
+      }
+      activeConfirmCallback = null;
+    });
+
+    /* ==========================================================================
+       CORE TEST TIMING LOGIC
+       ========================================================================== */
+    function startTest() {
+      if (elements.subjectSelect.selectedIndex <= 0) {
+        showAlert("Debe seleccionar una asignatura antes de iniciar la prueba.");
+        return;
+      }
+
+      state.isTestActive = true;
+      state.startTime = new Date();
+      state.alarmsTriggered.regular = false;
+      state.alarmsTriggered.apoyo = false;
+
+      // Disable inputs during active test
+      elements.subjectSelect.disabled = true;
+      elements.prueba1Radio.disabled = true;
+      elements.prueba2Radio.disabled = true;
+      elements.btnStart.disabled = true;
+
+      // Get configuration rules
+      const examType = getExamType();
+      const rules = TIME_RULES[examType];
+
+      // Calculate finalization times
+      state.endTimeRegular = new Date(state.startTime.getTime() + rules.regular * 60 * 1000);
+      state.endTimeApoyo = new Date(state.startTime.getTime() + rules.apoyo * 60 * 1000);
+
+      // Display calculated times on UI
+      elements.timeStart.textContent = formatTime12h(state.startTime);
+      elements.timeRegular.textContent = formatTime12h(state.endTimeRegular);
+      elements.timeApoyo.textContent = formatTime12h(state.endTimeApoyo);
+
+      // Activate UI cards visually
+      elements.cardStart.classList.add('active');
+      elements.cardRegular.classList.add('active');
+      elements.cardApoyo.classList.add('active');
+      
+      elements.stateText.textContent = `En curso (${elements.subjectSelect.value})`;
+      elements.stateText.style.color = 'var(--color-success)';
+
+      // Clear any previous interval and run live update
+      if (state.timerInterval) clearInterval(state.timerInterval);
+      updateCountdownTimers();
+      state.timerInterval = setInterval(updateCountdownTimers, 1000);
+      
+      // Initialize audio silently in case of modern browser autoplay restrictions
+      try {
+        if (!state.audioContext) {
+          state.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+      } catch(e) {}
+    }
+
+    function updateCountdownTimers() {
+      if (!state.isTestActive) return;
+
+      const now = new Date().getTime();
+
+      // Helper function to update countdown elements inside time cards
+      function updateCardTimer(endTime, textEl, progressEl, rulesMinutes, alarmKey) {
+        const totalDuration = rulesMinutes * 60 * 1000;
+        const targetTime = endTime.getTime();
+        const difference = targetTime - now;
+
+        if (difference <= 0) {
+          // Time is up
+          textEl.textContent = "¡Tiempo Finalizado!";
+          textEl.style.color = 'var(--color-success)';
+          progressEl.style.width = "100%";
+          progressEl.classList.add('finished');
+          
+          if (!state.alarmsTriggered[alarmKey]) {
+            state.alarmsTriggered[alarmKey] = true;
+            playChime();
+          }
+        } else {
+          // Calculating remaining format HH:MM:SS
+          const seconds = Math.floor((difference / 1000) % 60);
+          const minutes = Math.floor((difference / 1000 / 60) % 60);
+          const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
+
+          textEl.textContent = `${formatTwoDigits(hours)}:${formatTwoDigits(minutes)}:${formatTwoDigits(seconds)}`;
+          
+          // Changing color dynamically based on time remaining
+          if (difference < 5 * 60 * 1000) { // Under 5 minutes remaining
+            textEl.style.color = 'var(--color-danger)';
+          } else if (difference < 15 * 60 * 1000) { // Under 15 minutes remaining
+            textEl.style.color = 'var(--color-warning)';
+          } else {
+            textEl.style.color = 'var(--text-main)';
+          }
+
+          // Progress bar percentage calculation
+          const elapsed = totalDuration - difference;
+          const percentage = Math.min(100, Math.max(0, (elapsed / totalDuration) * 100));
+          progressEl.style.width = `${percentage}%`;
+          progressEl.classList.remove('finished');
+        }
+      }
+
+      const examType = getExamType();
+      const rules = TIME_RULES[examType];
+
+      // Update regular and support countdown cards
+      updateCardTimer(state.endTimeRegular, elements.timerRegular, elements.progressRegular, rules.regular, 'regular');
+      updateCardTimer(state.endTimeApoyo, elements.timerApoyo, elements.progressApoyo, rules.apoyo, 'apoyo');
+    }
+
+    function resetTest() {
+      state.isTestActive = false;
+      if (state.timerInterval) clearInterval(state.timerInterval);
+      state.startTime = null;
+      state.endTimeRegular = null;
+      state.endTimeApoyo = null;
+
+      // Re-enable inputs
+      elements.subjectSelect.disabled = false;
+      elements.subjectSelect.selectedIndex = 0;
+      elements.prueba1Radio.disabled = false;
+      elements.prueba1Radio.checked = true;
+      elements.prueba2Radio.disabled = false;
+      elements.btnStart.disabled = false;
+
+      // Reset values text
+      elements.timeStart.textContent = "--:--";
+      elements.timeRegular.textContent = "--:--";
+      elements.timeApoyo.textContent = "--:--";
+      
+      elements.stateText.textContent = "En espera";
+      elements.stateText.style.color = 'var(--text-muted)';
+      
+      elements.timerRegular.textContent = "--:--:--";
+      elements.timerRegular.style.color = 'var(--text-main)';
+      elements.timerApoyo.textContent = "--:--:--";
+      elements.timerApoyo.style.color = 'var(--text-main)';
+
+      // Reset progress bars
+      elements.progressRegular.style.width = "0%";
+      elements.progressRegular.classList.remove('finished');
+      elements.progressApoyo.style.width = "0%";
+      elements.progressApoyo.classList.remove('finished');
+
+      // Remove active card highlight styling
+      elements.cardStart.classList.remove('active');
+      elements.cardRegular.classList.remove('active');
+      elements.cardApoyo.classList.remove('active');
+    }
+
+    /* ==========================================================================
+       BUTTONS CLICK LISTENERS
+       ========================================================================== */
+    elements.btnStart.addEventListener('click', startTest);
+
+    elements.btnReset.addEventListener('click', () => {
+      showConfirm(
+        "¿Está seguro de que desea reiniciar el reloj? Se borrarán todos los tiempos calculados de la prueba actual.",
+        resetTest,
+        "¿Reiniciar Reloj?"
+      );
+    });
+
+    elements.btnExit.addEventListener('click', () => {
+      showConfirm(
+        "¿Está realmente seguro de que desea finalizar? Esto restablecerá la aplicación.",
+        resetTest,
+        "Confirmar Finalización",
+        true // Danger styling (red buttons)
+      );
+    });
+
+    // Close modals on click outside modal-box (optional UX touch)
+    window.addEventListener('click', (e) => {
+      if (e.target === elements.alertModal) {
+        elements.alertModal.classList.remove('open');
+      } else if (e.target === elements.confirmModal) {
+        elements.confirmModal.classList.remove('open');
+        activeConfirmCallback = null;
+      }
+    });
+
+  </script>
+</body>
+</html>
