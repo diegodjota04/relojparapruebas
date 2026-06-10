@@ -83,6 +83,13 @@
       padding: 20px;
       transition: background var(--transition-normal), color var(--transition-normal);
       overflow-x: hidden;
+      /* Ocultar barras de desplazamiento para simular una app nativa */
+      -ms-overflow-style: none;  /* IE y Edge */
+      scrollbar-width: none;  /* Firefox */
+    }
+
+    body::-webkit-scrollbar {
+      display: none; /* Chrome, Safari y Opera */
     }
 
     /* Background decorative blobs */
@@ -439,12 +446,6 @@
       cursor: pointer;
     }
 
-    .segment-option input {
-      position: absolute;
-      opacity: 0;
-      cursor: pointer;
-    }
-
     .segment-label {
       font-size: 1.05rem;
       font-weight: 600;
@@ -466,13 +467,14 @@
       transition: transform var(--transition-normal) cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
-    /* Toggle slider position */
+    /* Toggle slider position and label colors based on inputs */
     #prueba2:checked ~ .slider {
       transform: translateX(100%);
       background: var(--color-primary);
     }
 
-    .segment-option input:checked + .segment-label {
+    #prueba1:checked ~ label[for="prueba1"] .segment-label,
+    #prueba2:checked ~ label[for="prueba2"] .segment-label {
       color: #ffffff !important;
     }
 
@@ -925,12 +927,13 @@
           <button id="btnEditType" class="edit-link" style="display: none;">Editar</button>
         </span>
         <div class="segmented-control" style="transition: border-color var(--transition-fast), box-shadow var(--transition-fast);">
+          <input type="radio" id="prueba1" name="examType" value="1" checked style="display: none;">
+          <input type="radio" id="prueba2" name="examType" value="2" style="display: none;">
+          
           <label class="segment-option" for="prueba1">
-            <input type="radio" id="prueba1" name="examType" value="1" checked>
             <span class="segment-label">Prueba #1</span>
           </label>
           <label class="segment-option" for="prueba2">
-            <input type="radio" id="prueba2" name="examType" value="2">
             <span class="segment-label">Prueba #2</span>
           </label>
           <div class="slider"></div>
