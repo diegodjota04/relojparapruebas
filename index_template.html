@@ -80,18 +80,23 @@
       user-select: none;
     }
 
-    html, body {
+    html,
+    body {
       width: 100%;
       height: 100%;
       margin: 0;
       padding: 0;
-      overflow: hidden; /* Prevent all scrolls */
-      -ms-overflow-style: none;  /* IE and Edge */
-      scrollbar-width: none;  /* Firefox */
+      overflow: hidden;
+      /* Prevent all scrolls */
+      -ms-overflow-style: none;
+      /* IE and Edge */
+      scrollbar-width: none;
+      /* Firefox */
     }
 
     body::-webkit-scrollbar {
-      display: none; /* Chrome, Safari y Opera */
+      display: none;
+      /* Chrome, Safari y Opera */
     }
 
     body {
@@ -279,6 +284,14 @@
       position: relative;
       overflow: hidden;
       box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.03);
+    }
+
+    .clock-date {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-top: 10px;
+      letter-spacing: 0.05em;
     }
 
     .clock-label {
@@ -888,6 +901,26 @@
             <line x1="1" y1="1" x2="23" y2="23"></line>
           </svg>
         </button>
+        <!-- Wake Lock toggle -->
+        <button id="wakeLockToggle" class="icon-btn" data-tooltip="Evitar Suspensión: Activo">
+          <!-- Wake Lock On Icon -->
+          <svg id="wakeLockOnIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+            <line x1="8" y1="21" x2="16" y2="21"></line>
+            <line x1="12" y1="17" x2="12" y2="21"></line>
+            <circle cx="12" cy="10" r="2" fill="currentColor"></circle>
+          </svg>
+          <!-- Wake Lock Off Icon -->
+          <svg id="wakeLockOffIcon" style="display:none;" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+            <line x1="8" y1="21" x2="16" y2="21"></line>
+            <line x1="12" y1="17" x2="12" y2="21"></line>
+            <line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" stroke-width="2"></line>
+          </svg>
+        </button>
         <!-- Theme switcher -->
         <button id="themeToggle" class="icon-btn" data-tooltip="Cambiar Tema">
           <!-- Sun/Moon Icon -->
@@ -923,6 +956,7 @@
         <span id="clockSeconds" class="clock-seconds">00</span>
         <span id="clockPeriod" class="clock-period">AM</span>
       </div>
+      <div id="liveDate" class="clock-date">--/--/----</div>
     </section>
 
     <!-- CONFIGURATION SETUP FOR EXAM -->
@@ -1045,40 +1079,42 @@
       </article>
     </section>
 
-  <!-- Warning Modal (Alert) -->
-  <div id="alertModal" class="modal-overlay">
-    <div class="modal-box">
-      <div class="modal-header">
-        <div class="modal-icon warning">⚠️</div>
-        <h3 id="alertTitle" class="modal-title">Atención</h3>
-      </div>
-      <p id="alertMessage" class="modal-message">Debe seleccionar una asignatura.</p>
-      <div class="modal-actions">
-        <button id="alertBtnOk" class="modal-btn modal-btn-confirm">Aceptar</button>
+    <!-- Warning Modal (Alert) -->
+    <div id="alertModal" class="modal-overlay">
+      <div class="modal-box">
+        <div class="modal-header">
+          <div class="modal-icon warning">⚠️</div>
+          <h3 id="alertTitle" class="modal-title">Atención</h3>
+        </div>
+        <p id="alertMessage" class="modal-message">Debe seleccionar una asignatura.</p>
+        <div class="modal-actions">
+          <button id="alertBtnOk" class="modal-btn modal-btn-confirm">Aceptar</button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- Confirmation Modal (Confirm) -->
-  <div id="confirmModal" class="modal-overlay">
-    <div class="modal-box">
-      <div class="modal-header">
-        <div id="confirmIcon" class="modal-icon warning">❓</div>
-        <h3 id="confirmTitle" class="modal-title">Confirmación</h3>
-      </div>
-      <p id="confirmMessage" class="modal-message">¿Desea reiniciar el reloj?</p>
-      <div class="modal-actions">
-        <button id="confirmBtnCancel" class="modal-btn modal-btn-cancel">No</button>
-        <button id="confirmBtnOk" class="modal-btn modal-btn-confirm">Sí</button>
+    <!-- Confirmation Modal (Confirm) -->
+    <div id="confirmModal" class="modal-overlay">
+      <div class="modal-box">
+        <div class="modal-header">
+          <div id="confirmIcon" class="modal-icon warning">❓</div>
+          <h3 id="confirmTitle" class="modal-title">Confirmación</h3>
+        </div>
+        <p id="confirmMessage" class="modal-message">¿Desea reiniciar el reloj?</p>
+        <div class="modal-actions">
+          <button id="confirmBtnCancel" class="modal-btn modal-btn-cancel">No</button>
+          <button id="confirmBtnOk" class="modal-btn modal-btn-confirm">Sí</button>
+        </div>
       </div>
     </div>
-  </div>
   </main>
 
   <!-- ==========================================================================
        JAVASCRIPT LOGIC
        ========================================================================== */ -->
   <script>
+    const COMPUTER_NAME = "{{COMPUTER_NAME}}";
+
     // Constants for time additions (in minutes)
     const TIME_RULES = {
       prueba1: {
@@ -1104,7 +1140,10 @@
       alarmsTriggered: {
         regular: false,
         apoyo: false
-      }
+      },
+      wakeLockActive: true,
+      wakeLockObj: null,
+      logSaved: false
     };
 
     // DOM Elements
@@ -1113,6 +1152,11 @@
       clockMinutes: document.getElementById('clockMinutes'),
       clockSeconds: document.getElementById('clockSeconds'),
       clockPeriod: document.getElementById('clockPeriod'),
+      clockDate: document.getElementById('liveDate'),
+
+      wakeLockToggle: document.getElementById('wakeLockToggle'),
+      wakeLockOnIcon: document.getElementById('wakeLockOnIcon'),
+      wakeLockOffIcon: document.getElementById('wakeLockOffIcon'),
 
       subjectSelect: document.getElementById('subjectSelect'),
       prueba1Radio: document.getElementById('prueba1'),
@@ -1201,6 +1245,11 @@
       elements.clockMinutes.textContent = minutes;
       elements.clockSeconds.textContent = seconds;
       elements.clockPeriod.textContent = period;
+
+      const day = formatTwoDigits(now.getDate());
+      const month = formatTwoDigits(now.getMonth() + 1);
+      const year = now.getFullYear();
+      elements.clockDate.textContent = `${day}/${month}/${year}`;
     }
 
     setInterval(updateClock, 1000);
@@ -1583,12 +1632,306 @@
 
     elements.btnExit.addEventListener('click', () => {
       showConfirm(
-        "¿Está realmente seguro de que desea finalizar? Esto restablecerá la aplicación.",
-        resetTest,
+        "¿Está realmente seguro de que desea finalizar? Se cerrará el programa y se restablecerán los relojes.",
+        exitProgram,
         "Confirmar Finalización",
         true // Danger styling (red buttons)
       );
     });
+
+    function exitProgram() {
+      saveLogPDF(true);
+      resetTest();
+      setTimeout(() => {
+        window.close();
+      }, 100);
+    }
+
+    async function requestWakeLock() {
+      if (!('wakeLock' in navigator)) {
+        console.warn('Screen Wake Lock is not supported on this browser.');
+        updateWakeLockUI(false);
+        return;
+      }
+      try {
+        state.wakeLockObj = await navigator.wakeLock.request('screen');
+        console.log('Screen Wake Lock acquired.');
+        updateWakeLockUI(true);
+      } catch (err) {
+        console.error('Failed to acquire screen wake lock:', err);
+        updateWakeLockUI(false);
+      }
+    }
+
+    function releaseWakeLock() {
+      if (state.wakeLockObj) {
+        state.wakeLockObj.release();
+        state.wakeLockObj = null;
+        console.log('Screen Wake Lock released.');
+      }
+      updateWakeLockUI(false);
+    }
+
+    function updateWakeLockUI(active) {
+      if (active) {
+        elements.wakeLockOnIcon.style.display = 'block';
+        elements.wakeLockOffIcon.style.display = 'none';
+        elements.wakeLockToggle.setAttribute('data-tooltip', 'Evitar Suspensión: Activo');
+        elements.wakeLockToggle.style.borderColor = 'var(--color-success)';
+        elements.wakeLockToggle.style.color = 'var(--color-success)';
+      } else {
+        elements.wakeLockOnIcon.style.display = 'none';
+        elements.wakeLockOffIcon.style.display = 'block';
+        elements.wakeLockToggle.setAttribute('data-tooltip', 'Evitar Suspensión: Desactivado');
+        elements.wakeLockToggle.style.borderColor = '';
+        elements.wakeLockToggle.style.color = '';
+      }
+    }
+
+    function toWinAnsi(str) {
+      const charMap = {
+        'á': '\xE1', 'é': '\xE9', 'í': '\xED', 'ó': '\xF3', 'ú': '\xFA',
+        'Á': '\xC1', 'É': '\xC9', 'Í': '\xCD', 'Ó': '\xD3', 'Ú': '\xDA',
+        'ñ': '\xF1', 'Ñ': '\xD1', 'ü': '\xFC', 'Ü': '\xDC'
+      };
+      return str.split('').map(c => charMap[c] || (c.charCodeAt(0) < 128 ? c : '?')).join('');
+    }
+
+    function generateMinimalPDF(details) {
+      const title = "Registro de Uso - Reloj para Pruebas";
+      
+      const lines = [
+        { label: "Fecha del Examen", value: details.fecha },
+        { label: "Tipo de Prueba", value: details.prueba },
+        { label: "Asignatura", value: details.asignatura },
+        { label: "Hora de Inicio Oficial", value: details.inicio },
+        { label: "Finalizacion Estudiantes Regulares", value: details.finRegular },
+        { label: "Finalizacion Estudiantes con Apoyos", value: details.finApoyo },
+        { label: "Hora de Cierre del Programa", value: details.cierre },
+        { label: "Nombre del Equipo (PC)", value: COMPUTER_NAME }
+      ];
+
+      const winTitle = toWinAnsi(title);
+      const winLines = lines.map(row => ({
+        label: toWinAnsi(row.label),
+        value: toWinAnsi(row.value)
+      }));
+
+      // Extract logo image bytes from the DOM image via Canvas
+      let w = 150;
+      let h = 150;
+      let binaryImg = "";
+      try {
+        const logoImg = document.querySelector('.logo-img');
+        if (logoImg) {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          w = logoImg.naturalWidth || 150;
+          h = logoImg.naturalHeight || 150;
+          canvas.width = w;
+          canvas.height = h;
+          ctx.drawImage(logoImg, 0, 0, w, h);
+          const imgData = ctx.getImageData(0, 0, w, h);
+          for (let i = 0; i < imgData.data.length; i += 4) {
+            binaryImg += String.fromCharCode(imgData.data[i]);     // R
+            binaryImg += String.fromCharCode(imgData.data[i+1]);   // G
+            binaryImg += String.fromCharCode(imgData.data[i+2]);   // B
+          }
+        }
+      } catch (err) {
+        console.error("Failed to extract logo image data:", err);
+      }
+
+      // If image extraction failed, use a single transparent pixel placeholder
+      if (binaryImg.length === 0) {
+        w = 1;
+        h = 1;
+        binaryImg = "\xFF\xFF\xFF";
+      }
+
+      // Construct page contents stream
+      let streamText = "";
+      
+      // 1. Draw top header background (dark blue: RGB 15, 23, 42 -> 0.058, 0.090, 0.165)
+      streamText += "q\n";
+      streamText += "0.058 0.090 0.165 rg\n";
+      streamText += "0 700 595.28 141.89 re\n";
+      streamText += "f\n";
+      streamText += "Q\n";
+
+      // 2. Draw Logo Image (scaled to 70x70 at position x=40, y=735)
+      streamText += "q\n";
+      streamText += "70 0 0 70 40 735 cm\n";
+      streamText += "/Im1 Do\n";
+      streamText += "Q\n";
+
+      // 3. Draw Header Text
+      streamText += "BT\n";
+      streamText += "/F1 16 Tf\n";
+      streamText += "1 1 1 rg\n"; // White text
+      streamText += "130 775 Td\n";
+      streamText += `(${winTitle}) Tj\n`;
+      streamText += "0 -22 Td\n";
+      streamText += "/F1 11 Tf\n";
+      streamText += `(Colegio Calasanz - Registro de Control) Tj\n`;
+      streamText += "ET\n";
+
+      // 4. Draw Table Grid Lines (light grey: RGB 220, 225, 230 -> 0.86, 0.88, 0.90)
+      streamText += "q\n";
+      streamText += "0.86 0.88 0.90 RG\n";
+      streamText += "1.0 w\n";
+      
+      const startY = 620;
+      const rowHeight = 35;
+      for (let i = 0; i <= winLines.length; i++) {
+        const y = startY - i * rowHeight;
+        streamText += `40 ${y} m 555 ${y} l S\n`;
+      }
+      streamText += "Q\n";
+
+      // 5. Draw Table Labels and Values
+      winLines.forEach((row, i) => {
+        const textY = startY - i * rowHeight - 22;
+        
+        // Label (left column) - grey text: RGB 100, 110, 120 -> 0.39, 0.43, 0.47
+        streamText += "BT\n";
+        streamText += "/F1 10 Tf\n";
+        streamText += "0.39 0.43 0.47 rg\n";
+        streamText += `50 ${textY} Td\n`;
+        streamText += `(${row.label}) Tj\n`;
+        streamText += "ET\n";
+
+        // Value (right column) - dark text: RGB 15, 23, 42 -> 0.058, 0.090, 0.165
+        streamText += "BT\n";
+        streamText += "/F1 10 Tf\n";
+        streamText += "0.058 0.090 0.165 rg\n";
+        streamText += `240 ${textY} Td\n`;
+        streamText += `(${row.value}) Tj\n`;
+        streamText += "ET\n";
+      });
+
+      const streamLength = streamText.length;
+
+      const obj1 = "1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n";
+      const obj2 = "2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n";
+      const obj3 = "3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> /XObject << /Im1 6 0 R >> >> >>\nendobj\n";
+      const obj4 = `4 0 obj\n<< /Length ${streamLength} >>\nstream\n${streamText}\nendstream\nendobj\n`;
+      const obj5 = "5 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>\nendobj\n";
+      const obj6 = `6 0 obj\n<< /Type /XObject /Subtype /Image /Width ${w} /Height ${h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Length ${binaryImg.length} >>\nstream\n${binaryImg}\nendstream\nendobj\n`;
+
+      let pdf = "%PDF-1.4\n";
+      const offsets = [];
+
+      offsets.push(pdf.length);
+      pdf += obj1;
+      offsets.push(pdf.length);
+      pdf += obj2;
+      offsets.push(pdf.length);
+      pdf += obj3;
+      offsets.push(pdf.length);
+      pdf += obj4;
+      offsets.push(pdf.length);
+      pdf += obj5;
+      offsets.push(pdf.length);
+      pdf += obj6;
+
+      const startXref = pdf.length;
+      pdf += "xref\n";
+      pdf += `0 ${offsets.length + 1}\n`;
+      pdf += "0000000000 65535 f \n";
+      offsets.forEach(offset => {
+        const pad = ("0000000000" + offset).slice(-10);
+        pdf += `${pad} 00000 n \n`;
+      });
+
+      pdf += "trailer\n";
+      pdf += `<< /Size ${offsets.length + 1} /Root 1 0 R >>\n`;
+      pdf += "startxref\n";
+      pdf += `${startXref}\n`;
+      pdf += "%%EOF\n";
+
+      return btoa(pdf);
+    }
+
+    function saveLogPDF(isClosing = false) {
+      if (!state.startTime || state.logSaved) return;
+      state.logSaved = true;
+
+      const now = new Date();
+      const formatTime = (date) => {
+        let hours = date.getHours();
+        const minutes = formatTwoDigits(date.getMinutes());
+        const period = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12;
+        return `${formatTwoDigits(hours)}:${minutes} ${period}`;
+      };
+
+      const day = formatTwoDigits(state.startTime.getDate());
+      const month = formatTwoDigits(state.startTime.getMonth() + 1);
+      const year = state.startTime.getFullYear();
+      const fechaStr = `${day}/${month}/${year}`;
+      const fechaFileStr = `${day}-${month}-${year}`;
+
+      const details = {
+        prueba: getExamType() === 'prueba1' ? 'Prueba 1' : 'Prueba 2',
+        asignatura: elements.subjectSelect.value || 'N/A',
+        fecha: fechaStr,
+        inicio: formatTime(state.startTime),
+        finRegular: formatTime(state.endTimeRegular),
+        finApoyo: formatTime(state.endTimeApoyo),
+        cierre: formatTime(now)
+      };
+
+      // Sanitize fields for safe filename: "asignatura-fecha-nombre del equipo"
+      const safeSubject = (details.asignatura).replace(/[^a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ\s-]/g, '').trim().replace(/\s+/g, '_');
+      const safeDate = fechaFileStr;
+      const safePC = COMPUTER_NAME.replace(/[^a-zA-Z0-9\s-]/g, '').trim().replace(/\s+/g, '_');
+      const filename = `${safeSubject}-${safeDate}-${safePC}.pdf`;
+
+      const pdfBase64 = generateMinimalPDF(details);
+
+      const payload = {
+        filename: filename,
+        pdfBase64: pdfBase64
+      };
+
+      try {
+        fetch('http://localhost:5005/save-pdf', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload),
+          keepalive: true
+        }).catch(err => console.error('Error saving PDF:', err));
+      } catch (e) {
+        console.error('Fetch failed:', e);
+      }
+    }
+
+    elements.wakeLockToggle.addEventListener('click', async () => {
+      state.wakeLockActive = !state.wakeLockActive;
+      if (state.wakeLockActive) {
+        await requestWakeLock();
+      } else {
+        releaseWakeLock();
+      }
+    });
+
+    document.addEventListener('visibilitychange', async () => {
+      if (state.wakeLockActive && document.visibilityState === 'visible') {
+        await requestWakeLock();
+      }
+    });
+
+    window.addEventListener('unload', () => {
+      saveLogPDF(true);
+      fetch('http://localhost:5005/exit', { method: 'POST', keepalive: true }).catch(() => {});
+    });
+
+    // Request Wake Lock on load
+    requestWakeLock();
 
     // Close modals on click outside modal-box (optional UX touch)
     window.addEventListener('click', (e) => {
@@ -1608,7 +1951,7 @@
       // Reset temporary inline styles for clean measurements
       container.style.transform = 'none';
       container.style.margin = '0';
-      
+
       // Get the natural dimensions
       const rect = container.getBoundingClientRect();
       const naturalWidth = 725; // Design width
@@ -1621,13 +1964,13 @@
 
       const scaleX = availableWidth / naturalWidth;
       const scaleY = availableHeight / naturalHeight;
-      
+
       // Fit whichever dimension is tighter, but never exceed 1.0 (design scale)
       let scale = Math.min(scaleX, scaleY);
       if (scale > 1.0) {
         scale = 1.0;
       }
-      
+
       // Apply the scale transform centered
       container.style.transform = `scale(${scale})`;
       container.style.transformOrigin = 'center center';
