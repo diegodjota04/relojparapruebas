@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,8 +8,10 @@
   <!-- Google Fonts: Outfit -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-  
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Share+Tech+Mono&display=swap"
+    rel="stylesheet">
+
   <style>
     /* ==========================================================================
        DESIGN SYSTEM & CSS VARIABLES
@@ -20,19 +23,24 @@
       --glass-border: rgba(255, 255, 255, 0.08);
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
-      
+
       /* Accent colors */
-      --color-primary: #6366f1; /* Indigo */
+      --color-primary: #6366f1;
+      /* Indigo */
       --color-primary-glow: rgba(99, 102, 241, 0.3);
-      --color-accent: #06b6d4; /* Cyan */
+      --color-accent: #06b6d4;
+      /* Cyan */
       --color-accent-glow: rgba(6, 182, 212, 0.3);
-      
+
       /* State colors */
-      --color-success: #10b981; /* Emerald */
+      --color-success: #10b981;
+      /* Emerald */
       --color-success-glow: rgba(16, 185, 129, 0.2);
-      --color-warning: #f59e0b; /* Amber */
+      --color-warning: #f59e0b;
+      /* Amber */
       --color-warning-glow: rgba(245, 158, 11, 0.2);
-      --color-danger: #ef4444; /* Rose/Red */
+      --color-danger: #ef4444;
+      /* Rose/Red */
       --color-danger-glow: rgba(239, 68, 68, 0.2);
       --color-card-bg: rgba(15, 23, 42, 0.4);
 
@@ -52,12 +60,12 @@
       --glass-border: rgba(15, 23, 42, 0.08);
       --text-main: #0f172a;
       --text-muted: #64748b;
-      
+
       --color-primary: #4f46e5;
       --color-primary-glow: rgba(79, 70, 229, 0.2);
       --color-accent: #0891b2;
       --color-accent-glow: rgba(8, 145, 178, 0.2);
-      
+
       --color-card-bg: rgba(248, 250, 252, 0.6);
       --glass-border: rgba(0, 0, 0, 0.08);
     }
@@ -72,24 +80,28 @@
       user-select: none;
     }
 
-    body {
-      font-family: var(--font-sans);
-      background: var(--bg-gradient);
-      color: var(--text-main);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-      transition: background var(--transition-normal), color var(--transition-normal);
-      overflow-x: hidden;
-      /* Ocultar barras de desplazamiento para simular una app nativa */
-      -ms-overflow-style: none;  /* IE y Edge */
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden; /* Prevent all scrolls */
+      -ms-overflow-style: none;  /* IE and Edge */
       scrollbar-width: none;  /* Firefox */
     }
 
     body::-webkit-scrollbar {
       display: none; /* Chrome, Safari y Opera */
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: background var(--transition-normal), color var(--transition-normal);
     }
 
     /* Background decorative blobs */
@@ -104,7 +116,7 @@
       pointer-events: none;
       transition: opacity var(--transition-normal);
     }
-    
+
     [data-theme="light"] .bg-blob {
       opacity: 0.08;
     }
@@ -121,29 +133,35 @@
       background: var(--color-accent);
     }
 
-    /* ==========================================================================
-       LAYOUT CONTAINER (GLASS CONTAINER)
-       ========================================================================== */
     .app-container {
       background: var(--glass-bg);
       border: 1px solid var(--glass-border);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border-radius: 24px;
-      width: 100%;
-      max-width: 960px;
-      padding: 40px;
+      width: 725px;
+      padding: 28px;
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
       display: flex;
       flex-direction: column;
-      gap: 30px;
+      gap: 20px;
       position: relative;
       animation: fadeIn 0.6s ease-out;
+      box-sizing: border-box;
+      flex-shrink: 0;
+      overflow: hidden;
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(15px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(15px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     /* Theme Toggle & Audio Settings Bar */
@@ -152,8 +170,8 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 12px;
-      margin-bottom: 15px;
+      gap: 10px;
+      margin-bottom: 0px;
       width: 100%;
     }
 
@@ -162,37 +180,33 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 15px;
+      gap: 10px;
       width: 100%;
     }
 
     .logo-img {
-      height: 120px;
+      height: 104px;
       width: auto;
       object-fit: contain;
-      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.15));
+      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
       transition: all var(--transition-normal);
-    }
-    
-    [data-theme="light"] .logo-img {
-      /* Logo might look better with custom filter in light mode if it has white text,
-         but usually it's standard colored logo. */
     }
 
     .app-title {
-      font-size: 1.8rem;
+      font-size: 1.65rem;
       font-weight: 800;
       letter-spacing: -0.025em;
       text-align: center;
       background: linear-gradient(90deg, var(--text-main) 0%, var(--text-muted) 100%);
       -webkit-background-clip: text;
+      background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
     .settings-controls {
       position: absolute;
-      top: 30px;
-      right: 30px;
+      top: 24px;
+      right: 24px;
       display: flex;
       gap: 12px;
       align-items: center;
@@ -241,7 +255,7 @@
       opacity: 0;
       pointer-events: none;
       transition: all var(--transition-fast);
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       z-index: 10;
     }
 
@@ -257,7 +271,7 @@
       background: var(--color-card-bg);
       border: 1px solid var(--glass-border);
       border-radius: 20px;
-      padding: 24px 30px;
+      padding: 20px 24px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -268,7 +282,7 @@
     }
 
     .clock-label {
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.15em;
@@ -278,7 +292,7 @@
 
     .clock-time {
       font-family: var(--font-mono);
-      font-size: 4.5rem;
+      font-size: 4rem;
       font-weight: 800;
       color: var(--color-accent);
       text-shadow: 0 0 20px var(--color-accent-glow);
@@ -289,13 +303,13 @@
     }
 
     .clock-seconds {
-      font-size: 2.5rem;
+      font-size: 2.3rem;
       font-weight: 800;
       color: var(--text-muted);
       margin-left: 5px;
       text-shadow: none;
       opacity: 0.85;
-      width: 55px;
+      width: 50px;
     }
 
     .clock-period {
@@ -316,8 +330,15 @@
     }
 
     @keyframes pulse {
-      0%, 100% { opacity: 0.2; }
-      50% { opacity: 1; }
+
+      0%,
+      100% {
+        opacity: 0.2;
+      }
+
+      50% {
+        opacity: 1;
+      }
     }
 
     /* ==========================================================================
@@ -329,31 +350,6 @@
       gap: 20px;
     }
 
-    @media (max-width: 768px) {
-      .setup-grid {
-        grid-template-columns: 1fr;
-      }
-      .app-container {
-        padding: 24px;
-        padding-top: 55px; /* Space for setting controls at the top */
-      }
-      .clock-time {
-        font-size: 3.2rem;
-      }
-      .clock-seconds {
-        font-size: 1.8rem;
-        width: 38px;
-      }
-      .settings-controls {
-        position: absolute;
-        top: 15px;
-        right: 15px;
-        gap: 8px;
-      }
-      .logo-img {
-        height: 90px;
-      }
-    }
 
     .control-group {
       display: flex;
@@ -380,8 +376,8 @@
       background: rgba(15, 23, 42, 0.4);
       border: 1px solid var(--glass-border);
       color: var(--text-main);
-      padding: 16px 20px;
-      font-size: 1.1rem;
+      padding: 14px 18px;
+      font-size: 1.15rem;
       font-weight: 500;
       border-radius: 14px;
       outline: none;
@@ -391,12 +387,13 @@
       transition: all var(--transition-fast);
       font-family: var(--font-sans);
     }
-    
+
     [data-theme="light"] .custom-select {
       background: rgba(255, 255, 255, 0.8);
     }
 
-    .custom-select:focus, .custom-select:hover {
+    .custom-select:focus,
+    .custom-select:hover {
       border-color: var(--color-primary);
       box-shadow: 0 0 12px var(--color-primary-glow);
     }
@@ -428,7 +425,7 @@
       padding: 5px;
       position: relative;
       overflow: hidden;
-      height: 58px;
+      height: 55px;
     }
 
     [data-theme="light"] .segmented-control {
@@ -447,7 +444,7 @@
     }
 
     .segment-label {
-      font-size: 1.05rem;
+      font-size: 1.1rem;
       font-weight: 600;
       color: var(--text-muted);
       transition: color var(--transition-fast);
@@ -468,13 +465,13 @@
     }
 
     /* Toggle slider position and label colors based on inputs */
-    #prueba2:checked ~ .slider {
+    #prueba2:checked~.slider {
       transform: translateX(100%);
       background: var(--color-primary);
     }
 
-    #prueba1:checked ~ label[for="prueba1"] .segment-label,
-    #prueba2:checked ~ label[for="prueba2"] .segment-label {
+    #prueba1:checked~label[for="prueba1"] .segment-label,
+    #prueba2:checked~label[for="prueba2"] .segment-label {
       color: #ffffff !important;
     }
 
@@ -492,7 +489,7 @@
       border-radius: 6px;
       transition: all var(--transition-fast);
     }
-    
+
     .edit-link:hover {
       background: rgba(6, 182, 212, 0.1);
     }
@@ -511,8 +508,8 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
-      padding: 16px 24px;
-      font-size: 1.1rem;
+      padding: 14px 20px;
+      font-size: 1.15rem;
       font-weight: 700;
       font-family: var(--font-sans);
       border-radius: 14px;
@@ -575,22 +572,18 @@
       gap: 20px;
     }
 
-    @media (max-width: 900px) {
-      .results-grid {
-        grid-template-columns: 1fr;
-      }
-    }
 
     .card {
       background: var(--color-card-bg);
       border: 1px solid var(--glass-border);
       border-radius: 20px;
-      padding: 20px;
+      padding: 16px 20px;
       display: flex;
       flex-direction: column;
-      gap: 15px;
+      gap: 12px;
       transition: all var(--transition-normal);
-      opacity: 0.6; /* Dimmed when not active */
+      opacity: 0.6;
+      /* Dimmed when not active */
     }
 
     .card.active {
@@ -598,7 +591,7 @@
       border-color: rgba(255, 255, 255, 0.15);
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
     }
-    
+
     [data-theme="light"] .card.active {
       border-color: rgba(0, 0, 0, 0.12);
     }
@@ -619,7 +612,7 @@
 
     .card-value {
       font-family: var(--font-mono);
-      font-size: 2.2rem;
+      font-size: 2.1rem;
       font-weight: 800;
       color: var(--text-main);
       line-height: 1;
@@ -646,16 +639,16 @@
       flex-direction: column;
       gap: 6px;
       border-top: 1px solid rgba(255, 255, 255, 0.05);
-      padding-top: 12px;
-      margin-top: 5px;
+      padding-top: 10px;
+      margin-top: 4px;
     }
-    
+
     [data-theme="light"] .countdown-section {
       border-top-color: rgba(0, 0, 0, 0.05);
     }
 
     .countdown-label {
-      font-size: 0.75rem;
+      font-size: 0.8rem;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.05em;
@@ -664,7 +657,7 @@
 
     .countdown-timer {
       font-family: var(--font-mono);
-      font-size: 1.4rem;
+      font-size: 1.3rem;
       font-weight: 800;
       color: var(--text-main);
     }
@@ -678,7 +671,7 @@
       overflow: hidden;
       position: relative;
     }
-    
+
     [data-theme="light"] .progress-bar-container {
       background: rgba(0, 0, 0, 0.05);
     }
@@ -699,7 +692,7 @@
       background: linear-gradient(90deg, #dc2626, var(--color-danger));
       box-shadow: 0 0 8px var(--color-danger-glow);
     }
-    
+
     .progress-bar.finished {
       background: var(--color-success) !important;
       box-shadow: 0 0 8px var(--color-success-glow);
@@ -707,8 +700,15 @@
     }
 
     @keyframes pulse-green {
-      0%, 100% { opacity: 0.8; }
-      50% { opacity: 1; }
+
+      0%,
+      100% {
+        opacity: 0.8;
+      }
+
+      50% {
+        opacity: 1;
+      }
     }
 
     /* ==========================================================================
@@ -799,7 +799,7 @@
       color: var(--text-muted);
       line-height: 1.5;
     }
-    
+
     [data-theme="light"] .modal-message {
       color: #475569;
     }
@@ -840,7 +840,7 @@
       box-shadow: 0 0 12px var(--color-primary-glow);
       filter: brightness(1.1);
     }
-    
+
     .modal-btn-danger {
       background: #ef4444;
       color: #ffffff;
@@ -852,6 +852,7 @@
     }
   </style>
 </head>
+
 <body>
 
   <!-- Background blobs -->
@@ -860,7 +861,7 @@
 
   <!-- MAIN APP CONTAINER -->
   <main class="app-container">
-    
+
     <!-- Top Branding and Settings Row -->
     <header class="top-bar">
       <div class="logo-container">
@@ -872,14 +873,41 @@
         <!-- Sound alert toggle -->
         <button id="soundToggle" class="icon-btn" data-tooltip="Notificación Sonora: Activa">
           <!-- Bell Icon -->
-          <svg id="soundOnIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-          <svg id="soundOffIcon" style="display:none;" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.73 21a2 2 0 0 1-3.46 0"></path><path d="M18.63 13A17.89 17.89 0 0 1 18 8"></path><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"></path><path d="M18 8a6 6 0 0 0-9.33-5"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+          <svg id="soundOnIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
+          <svg id="soundOffIcon" style="display:none;" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            <path d="M18.63 13A17.89 17.89 0 0 1 18 8"></path>
+            <path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"></path>
+            <path d="M18 8a6 6 0 0 0-9.33-5"></path>
+            <line x1="1" y1="1" x2="23" y2="23"></line>
+          </svg>
         </button>
         <!-- Theme switcher -->
         <button id="themeToggle" class="icon-btn" data-tooltip="Cambiar Tema">
           <!-- Sun/Moon Icon -->
-          <svg id="sunIcon" style="display:none;" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-          <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+          <svg id="sunIcon" style="display:none;" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
         </button>
       </div>
     </header>
@@ -922,14 +950,16 @@
 
       <!-- Segmented choice control for Exam Type -->
       <div class="control-group">
-        <span class="control-label" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+        <span class="control-label"
+          style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
           <span>Tipo de Prueba</span>
           <button id="btnEditType" class="edit-link" style="display: none;">Editar</button>
         </span>
-        <div class="segmented-control" style="transition: border-color var(--transition-fast), box-shadow var(--transition-fast);">
+        <div class="segmented-control"
+          style="transition: border-color var(--transition-fast), box-shadow var(--transition-fast);">
           <input type="radio" id="prueba1" name="examType" value="1" checked style="display: none;">
           <input type="radio" id="prueba2" name="examType" value="2" style="display: none;">
-          
+
           <label class="segment-option" for="prueba1">
             <span class="segment-label">Prueba #1</span>
           </label>
@@ -944,15 +974,26 @@
     <!-- CONTROL INTERACTIVE BUTTONS -->
     <section class="actions-bar" aria-label="Acciones de control">
       <button id="btnStart" class="btn btn-start">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="5 3 19 12 5 21 5 3"></polygon>
+        </svg>
         Iniciar prueba
       </button>
       <button id="btnReset" class="btn btn-reset">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+        </svg>
         Reiniciar
       </button>
       <button id="btnExit" class="btn btn-exit">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
         Finalizar
       </button>
     </section>
@@ -967,7 +1008,9 @@
         </div>
         <div class="countdown-section">
           <span class="countdown-label">Estado</span>
-          <span id="stateText" class="countdown-timer" style="font-size: 1.15rem; font-family: var(--font-sans); font-weight: 600; color: var(--text-muted);">En espera</span>
+          <span id="stateText" class="countdown-timer"
+            style="font-size: 1.15rem; font-family: var(--font-sans); font-weight: 600; color: var(--text-muted);">En
+            espera</span>
         </div>
       </article>
 
@@ -1002,11 +1045,6 @@
       </article>
     </section>
 
-  </main>
-
-  <!-- ==========================================================================
-       MODAL WINDOWS FOR DIALOGS
-       ========================================================================== */ -->
   <!-- Warning Modal (Alert) -->
   <div id="alertModal" class="modal-overlay">
     <div class="modal-box">
@@ -1035,6 +1073,7 @@
       </div>
     </div>
   </div>
+  </main>
 
   <!-- ==========================================================================
        JAVASCRIPT LOGIC
@@ -1074,45 +1113,45 @@
       clockMinutes: document.getElementById('clockMinutes'),
       clockSeconds: document.getElementById('clockSeconds'),
       clockPeriod: document.getElementById('clockPeriod'),
-      
+
       subjectSelect: document.getElementById('subjectSelect'),
       prueba1Radio: document.getElementById('prueba1'),
       prueba2Radio: document.getElementById('prueba2'),
       btnEditType: document.getElementById('btnEditType'),
-      
+
       btnStart: document.getElementById('btnStart'),
       btnReset: document.getElementById('btnReset'),
       btnExit: document.getElementById('btnExit'),
-      
+
       cardStart: document.getElementById('cardStart'),
       cardRegular: document.getElementById('cardRegular'),
       cardApoyo: document.getElementById('cardApoyo'),
-      
+
       timeStart: document.getElementById('timeStart'),
       timeRegular: document.getElementById('timeRegular'),
       timeApoyo: document.getElementById('timeApoyo'),
-      
+
       stateText: document.getElementById('stateText'),
       timerRegular: document.getElementById('timerRegular'),
       timerApoyo: document.getElementById('timerApoyo'),
-      
+
       progressRegular: document.getElementById('progressRegular'),
       progressApoyo: document.getElementById('progressApoyo'),
-      
+
       themeToggle: document.getElementById('themeToggle'),
       sunIcon: document.getElementById('sunIcon'),
       moonIcon: document.getElementById('moonIcon'),
-      
+
       soundToggle: document.getElementById('soundToggle'),
       soundOnIcon: document.getElementById('soundOnIcon'),
       soundOffIcon: document.getElementById('soundOffIcon'),
-      
+
       // Modals
       alertModal: document.getElementById('alertModal'),
       alertTitle: document.getElementById('alertTitle'),
       alertMessage: document.getElementById('alertMessage'),
       alertBtnOk: document.getElementById('alertBtnOk'),
-      
+
       confirmModal: document.getElementById('confirmModal'),
       confirmIcon: document.getElementById('confirmIcon'),
       confirmTitle: document.getElementById('confirmTitle'),
@@ -1154,10 +1193,10 @@
       const minutes = formatTwoDigits(now.getMinutes());
       const seconds = formatTwoDigits(now.getSeconds());
       const period = hours >= 12 ? 'PM' : 'AM';
-      
+
       hours = hours % 12;
       hours = hours ? hours : 12; // the hour '0' should be '12'
-      
+
       elements.clockHours.textContent = formatTwoDigits(hours);
       elements.clockMinutes.textContent = minutes;
       elements.clockSeconds.textContent = seconds;
@@ -1214,38 +1253,38 @@
     // Synthesize a pleasant notification bell sound
     function playChime() {
       if (!state.soundNotificationActive) return;
-      
+
       try {
         // Initialize AudioContext lazily on user interaction
         if (!state.audioContext) {
           state.audioContext = new (window.AudioContext || window.webkitAudioContext)();
         }
-        
+
         const ctx = state.audioContext;
         if (ctx.state === 'suspended') {
           ctx.resume();
         }
 
         const now = ctx.currentTime;
-        
+
         // Custom synthesizer for a crystal clear chime sound (harmonic resonance)
         // We will create a primary oscillator and two minor harmonics
         const frequencies = [880, 1109.73, 1320]; // A5 major chord notes
-        
+
         frequencies.forEach((freq, idx) => {
           const osc = ctx.createOscillator();
           const gainNode = ctx.createGain();
-          
+
           osc.type = 'sine';
           osc.frequency.setValueAtTime(freq, now);
-          
+
           // Smooth exponential decay curve
           gainNode.gain.setValueAtTime(idx === 0 ? 0.3 : 0.1, now);
           gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 2.5);
-          
+
           osc.connect(gainNode);
           gainNode.connect(ctx.destination);
-          
+
           osc.start(now);
           osc.stop(now + 2.6);
         });
@@ -1271,7 +1310,7 @@
       elements.confirmTitle.textContent = title;
       elements.confirmMessage.textContent = message;
       activeConfirmCallback = onConfirm;
-      
+
       // Style confirm icon based on alert severity
       if (isDanger) {
         elements.confirmIcon.className = "modal-icon danger";
@@ -1282,7 +1321,7 @@
         elements.confirmIcon.textContent = "❓";
         elements.confirmBtnOk.className = "modal-btn modal-btn-confirm";
       }
-      
+
       elements.confirmModal.classList.add('open');
     }
 
@@ -1336,7 +1375,7 @@
       elements.cardStart.classList.add('active');
       elements.cardRegular.classList.add('active');
       elements.cardApoyo.classList.add('active');
-      
+
       elements.stateText.textContent = `En curso (${elements.subjectSelect.value})`;
       elements.stateText.style.color = 'var(--color-success)';
 
@@ -1349,13 +1388,13 @@
       if (state.timerInterval) clearInterval(state.timerInterval);
       updateCountdownTimers();
       state.timerInterval = setInterval(updateCountdownTimers, 1000);
-      
+
       // Initialize audio silently in case of modern browser autoplay restrictions
       try {
         if (!state.audioContext) {
           state.audioContext = new (window.AudioContext || window.webkitAudioContext)();
         }
-      } catch(e) {}
+      } catch (e) { }
     }
 
     function updateCountdownTimers() {
@@ -1375,7 +1414,7 @@
           textEl.style.color = 'var(--color-success)';
           progressEl.style.width = "100%";
           progressEl.classList.add('finished');
-          
+
           if (!state.alarmsTriggered[alarmKey]) {
             state.alarmsTriggered[alarmKey] = true;
             playChime();
@@ -1387,7 +1426,7 @@
           const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
 
           textEl.textContent = `${formatTwoDigits(hours)}:${formatTwoDigits(minutes)}:${formatTwoDigits(seconds)}`;
-          
+
           // Changing color dynamically based on time remaining
           if (difference < 5 * 60 * 1000) { // Under 5 minutes remaining
             textEl.style.color = 'var(--color-danger)';
@@ -1432,10 +1471,10 @@
       elements.timeStart.textContent = "--:--";
       elements.timeRegular.textContent = "--:--";
       elements.timeApoyo.textContent = "--:--";
-      
+
       elements.stateText.textContent = "En espera";
       elements.stateText.style.color = 'var(--text-muted)';
-      
+
       elements.timerRegular.textContent = "--:--:--";
       elements.timerRegular.style.color = 'var(--text-main)';
       elements.timerApoyo.textContent = "--:--:--";
@@ -1473,7 +1512,7 @@
         elements.prueba2Radio.disabled = false;
         elements.btnEditType.textContent = 'Cancelar';
         elements.btnEditType.style.color = 'var(--color-danger)';
-        
+
         // Add visual cue to segmented control
         const segControl = document.querySelector('.segmented-control');
         segControl.style.boxShadow = '0 0 10px var(--color-primary-glow)';
@@ -1490,7 +1529,7 @@
       elements.prueba2Radio.disabled = true;
       elements.btnEditType.textContent = 'Editar';
       elements.btnEditType.style.color = 'var(--color-accent)';
-      
+
       // Remove style cues
       const segControl = document.querySelector('.segmented-control');
       segControl.style.boxShadow = '';
@@ -1561,6 +1600,46 @@
       }
     });
 
+    // Dynamic Responsive Scaling for Minimized/Windowed Mode
+    function adjustScale() {
+      const container = document.querySelector('.app-container');
+      if (!container) return;
+
+      // Reset temporary inline styles for clean measurements
+      container.style.transform = 'none';
+      container.style.margin = '0';
+      
+      // Get the natural dimensions
+      const rect = container.getBoundingClientRect();
+      const naturalWidth = 725; // Design width
+      const naturalHeight = rect.height;
+
+      // Calculate the scale to fit both width and height
+      const paddingMargin = 20; // 10px spacing on each side
+      const availableWidth = window.innerWidth - paddingMargin;
+      const availableHeight = window.innerHeight - paddingMargin;
+
+      const scaleX = availableWidth / naturalWidth;
+      const scaleY = availableHeight / naturalHeight;
+      
+      // Fit whichever dimension is tighter, but never exceed 1.0 (design scale)
+      let scale = Math.min(scaleX, scaleY);
+      if (scale > 1.0) {
+        scale = 1.0;
+      }
+      
+      // Apply the scale transform centered
+      container.style.transform = `scale(${scale})`;
+      container.style.transformOrigin = 'center center';
+    }
+
+    // Attach resize listeners
+    window.addEventListener('resize', adjustScale);
+    window.addEventListener('load', adjustScale);
+    document.addEventListener('DOMContentLoaded', adjustScale);
+    setTimeout(adjustScale, 100); // Fail-safe fallback run after layout resolves
+
   </script>
 </body>
+
 </html>
