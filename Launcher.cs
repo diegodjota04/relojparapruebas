@@ -54,7 +54,20 @@ namespace RelojLauncher
 
                 if (htmlStream == null) return;
                 
-                ExtractAndLaunch(htmlStream);
+                try
+                {
+                    ExtractAndLaunch(htmlStream);
+                }
+                catch (Exception ex)
+                {
+                    try
+                    {
+                        string logDir = Path.Combine(Path.GetTempPath(), "RelojCalasanz");
+                        if (!Directory.Exists(logDir)) Directory.CreateDirectory(logDir);
+                        File.AppendAllText(Path.Combine(logDir, "error_log.txt"), DateTime.Now + ": Browser launch error: " + ex.ToString() + Environment.NewLine);
+                    }
+                    catch {}
+                }
 
                 // Wait for exit signal
                 exitEvent.WaitOne();
@@ -120,34 +133,60 @@ namespace RelojLauncher
                     response.OutputStream.Write(buffer, 0, buffer.Length);
                     response.Close();
                     
+                    // Give other requests (like /save-pdf) time to finish
+                    Thread.Sleep(500);
                     exitEvent.Set();
                     return;
                 }
 
                 if (request.HttpMethod == "POST" && request.Url.LocalPath == "/save-pdf")
                 {
-                    using (var reader = new StreamReader(request.InputStream, request.ContentEncoding))
+                    try
                     {
-                        string json = reader.ReadToEnd();
-                        string filename = GetJsonValue(json, "filename");
-                        string pdfBase64 = GetJsonValue(json, "pdfBase64");
-
-                        if (!string.IsNullOrEmpty(filename) && !string.IsNullOrEmpty(pdfBase64))
+                        using (var reader = new StreamReader(request.InputStream, request.ContentEncoding))
                         {
-                            byte[] bytes = Convert.FromBase64String(pdfBase64);
-                            string filePath = Path.Combine(documentsPath, filename);
-                            File.WriteAllBytes(filePath, bytes);
+                            string json = reader.ReadToEnd();
+                            string filename = GetJsonValue(json, "filename");
+                            string pdfBase64 = GetJsonValue(json, "pdfBase64");
 
-                            string responseString = "{\"status\":\"success\"}";
-                            byte[] buffer = Encoding.UTF8.GetBytes(responseString);
-                            response.ContentLength64 = buffer.Length;
-                            response.ContentType = "application/json";
-                            response.OutputStream.Write(buffer, 0, buffer.Length);
+                            if (!string.IsNullOrEmpty(filename) && !string.IsNullOrEmpty(pdfBase64))
+                            {
+                                byte[] bytes = Convert.FromBase64String(pdfBase64);
+                                if (!Directory.Exists(documentsPath))
+                                {
+                                    Directory.CreateDirectory(documentsPath);
+                                }
+                                string filePath = Path.Combine(documentsPath, filename);
+                                File.WriteAllBytes(filePath, bytes);
+
+                                string responseString = "{\"status\":\"success\"}";
+                                byte[] buffer = Encoding.UTF8.GetBytes(responseString);
+                                response.ContentLength64 = buffer.Length;
+                                response.ContentType = "application/json";
+                                response.OutputStream.Write(buffer, 0, buffer.Length);
+                            }
+                            else
+                            {
+                                response.StatusCode = (int)HttpStatusCode.BadRequest;
+                            }
                         }
-                        else
+                    }
+                    catch (Exception ex)
+                    {
+                        try
                         {
-                            response.StatusCode = (int)HttpStatusCode.BadRequest;
+                            string logDir = Path.Combine(Path.GetTempPath(), "RelojCalasanz");
+                            if (!Directory.Exists(logDir)) Directory.CreateDirectory(logDir);
+                            string logPath = Path.Combine(logDir, "error_log.txt");
+                            File.AppendAllText(logPath, DateTime.Now + ": Error saving PDF - " + ex.ToString() + Environment.NewLine);
                         }
+                        catch {}
+
+                        response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                        byte[] errorBuffer = Encoding.UTF8.GetBytes("{\"error\":\"" + ex.Message.Replace("\"", "\\\"") + "\"}");
+                        response.ContentLength64 = errorBuffer.Length;
+                        response.ContentType = "application/json";
+                        response.OutputStream.Write(errorBuffer, 0, errorBuffer.Length);
                     }
                     response.Close();
                 }
@@ -157,9 +196,16 @@ namespace RelojLauncher
                     response.Close();
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Prevent callback thread crash
+                try
+                {
+                    string logDir = Path.Combine(Path.GetTempPath(), "RelojCalasanz");
+                    if (!Directory.Exists(logDir)) Directory.CreateDirectory(logDir);
+                    string logPath = Path.Combine(logDir, "error_log.txt");
+                    File.AppendAllText(logPath, DateTime.Now + ": Thread Callback Exception - " + ex.ToString() + Environment.NewLine);
+                }
+                catch {}
             }
         }
 

@@ -1639,12 +1639,25 @@
       );
     });
 
-    function exitProgram() {
-      saveLogPDF(true);
+    async function exitProgram() {
+      try {
+        const response = await saveLogPDF(true);
+        if (response && !response.ok) {
+          let errorMsg = "Error desconocido en el servidor local";
+          try {
+            const errData = await response.json();
+            errorMsg = errData.error || errorMsg;
+          } catch (e) {}
+          showAlert("No se pudo guardar el registro PDF de la prueba en la ruta de red. Detalle: " + errorMsg + "\n\nPor favor, verifique la conexión de red y contacte al administrador.", "Error al Guardar PDF");
+          return; // Cancela el cierre del programa para no perder el estado
+        }
+      } catch (err) {
+        showAlert("No se pudo conectar con el servidor local para guardar el PDF.", "Error de Conexión");
+        return; // Cancela el cierre
+      }
+
       resetTest();
-      setTimeout(() => {
-        window.close();
-      }, 100);
+      window.close();
     }
 
     async function requestWakeLock() {
@@ -1717,17 +1730,15 @@
         value: toWinAnsi(row.value)
       }));
 
-      // Extract logo image bytes from the DOM image via Canvas
-      let w = 150;
-      let h = 150;
+      // Extract logo image bytes from the DOM image via Canvas (resized to a fixed 80x80 to keep payload under 64KB)
+      let w = 80;
+      let h = 80;
       let binaryImg = "";
       try {
         const logoImg = document.querySelector('.logo-img');
         if (logoImg) {
           const canvas = document.createElement('canvas');
           const ctx = canvas.getContext('2d');
-          w = logoImg.naturalWidth || 150;
-          h = logoImg.naturalHeight || 150;
           canvas.width = w;
           canvas.height = h;
           ctx.drawImage(logoImg, 0, 0, w, h);
@@ -1853,8 +1864,8 @@
       return btoa(pdf);
     }
 
-    function saveLogPDF(isClosing = false) {
-      if (!state.startTime || state.logSaved) return;
+    async function saveLogPDF(isClosing = false) {
+      if (!state.startTime || state.logSaved) return null;
       state.logSaved = true;
 
       const now = new Date();
@@ -1897,16 +1908,22 @@
       };
 
       try {
-        fetch('http://localhost:5005/save-pdf', {
+        const response = await fetch('http://localhost:5005/save-pdf', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify(payload),
           keepalive: true
-        }).catch(err => console.error('Error saving PDF:', err));
+        });
+        if (!response.ok) {
+          state.logSaved = false; // Permite reintentar si falla
+        }
+        return response;
       } catch (e) {
+        state.logSaved = false; // Permite reintentar si falla
         console.error('Fetch failed:', e);
+        throw e;
       }
     }
 
